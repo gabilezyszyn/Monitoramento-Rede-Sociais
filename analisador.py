@@ -23,16 +23,23 @@ def analisar_post(texto):
     except Exception as e: #caso Llama caiu ou a VRAM acabe
         return f"ERRO NA INFERÊNCIA: Ocorreu uma falha ao processar o post. Detalhe: {e}"
     
-def resumir_post_suspeito(texto):
+def resumir_campanha_coordenada(lista_de_posts):
     modelo_ia = 'llama3.2'
+    
+    #formatacao da lista de posts em texto para o llama 3.2 ler
+    posts_formatados = "\n".join([f"- {p}" for p in lista_de_posts])
+    
     prompt = f"""
-    Você é um assistente de IA especialista em análise de redes sociais no laboratório LaBDES.
-    O sistema de monitoramento detectou que este post possui uma similaridade vetorial muito alta com posts anteriores.
-    Escreva um resumo analítico bem curto (no máximo 2 linhas) explicando qual é o assunto ou a principal intenção desse texto.
+    Você é um analista sênior de segurança digital no laboratório LaBDES.
+    O nosso sistema FAISS agrupou os seguintes posts devido à altíssima similaridade semântica entre eles (>90%).
+    Analise o lote de posts abaixo e identifique o tema central, a intenção da campanha e faça um resumo consolidado em até 3 linhas.
 
-    Post Suspeito: "{texto}"
+    Posts detectados na campanha:
+    {posts_formatados}
 
-    Resposta resumida (direta e em português):
+    Resposta estruturada em português:
+    TEMA CENTRAL DA CAMPANHA:
+    RESUMO ANALÍTICO:
     """
 
     try:
@@ -42,7 +49,7 @@ def resumir_post_suspeito(texto):
         return response['message']['content']
     
     except Exception as e:
-        return f"ERRO NO LLAMA (Resumo): {e}"
+        return f"ERRO NO LLAMA (Resumo de Lote): {e}"
     
 if __name__ == "__main__":
     post_teste = "GANHE DINHEIRO AGORA!!! CLIQUE NO LINK E MUDE DE VIDA #PIX #DINHEIRO"

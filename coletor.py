@@ -1,12 +1,20 @@
 print("Carregando Atproto...")
 from atproto import Client
 print("Carregando verificacao do modelo....")
-from monitor_bluesky import verificar_e_guardar
+from monitor_bluesky import verificar_e_guardar, gerar_relatorio_final_campanha
 print("Quase la...")
 import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 HANDLE = "ggabigol.bsky.social"
-PASSWORD = "rouw-cee7-niyt-eai6"
+PASSWORD = os.getenv("BLUESKY_PASSWORD")
+
+if not PASSWORD:
+    print("ERRO: A senha nao foi encontrada no arquivo .env!")
+    exit(1)
 
 client = Client()
 
@@ -14,7 +22,6 @@ def iniciar_monitoramento():
     try:
         print(f"Conectando ao BlueSky como {HANDLE}")
         client.login(HANDLE, PASSWORD)
-        #print("Conectado com sucesso! Monitorando posts..\n")
         print("Conectado com sucesso! Monitorando posts e injetando testes...\n")
         
         posts_teste_semantico = [
@@ -36,7 +43,16 @@ def iniciar_monitoramento():
             print("-" * 30)
             time.sleep(4) 
 
-        print("\n--- TESTE SEMÂNTICO CONCLUÍDO. ENTRANDO NO FLUXO REAL DA TIMELINE ---")
+        print("\n--- TESTE SEMÂNTICO CONCLUÍDO. ---")
+
+        print("ENVIANDO LOTE AO LLAMA 3.2...")
+        
+        relatorio_lote = gerar_relatorio_final_campanha()
+        print(relatorio_lote)
+        
+        print("==================================================================\n")
+
+        print("--- ENTRANDO NO FLUXO REAL DA TIMELINE ---")
 
         while True:
             #puxa os posts da timeline "folowing"
@@ -46,7 +62,6 @@ def iniciar_monitoramento():
                 post_texto = item.post.record.text
                 autor = item.post.author.handle
                 
-                #verificacao do Llama3.2
                 resultado = verificar_e_guardar(post_texto)
                 
                 print(f"[@{autor}]: {post_texto[:50]}...")
